@@ -1,6 +1,9 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-// window stuff here
+#include <curses.h>
 
-#endif WINDOW_H
+WINDOW *create_window(int starty, int startx, int height, int width, int refresh);
+void destroy_window(WINDOW *window);
+
+#endif

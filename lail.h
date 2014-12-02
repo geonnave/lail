@@ -1,6 +1,9 @@
 #ifndef LAIL_H
-#define LAIL_h
+#define LAIL_H
 
-// upper stuff here
+void init();
+void process();
+int read_filter();
+void finish();
 
-#endif LAIL_H
+#endif

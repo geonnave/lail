@@ -1,11 +1,11 @@
 CFLAGS=
-CC=gcc
+CC=clang
 OUT=lail
 
 main: lail.o
-	$(CC) main.c -o $(OUT) -lncurses
+	$(CC) main.c -o $(OUT) lail.o window.o -lncurses
 
-lail.o: lail.c
+lail.o: window.o lail.c
 	$(CC) $(CFLAGS) -c lail.c -lncurses
 
 window.o: window.c

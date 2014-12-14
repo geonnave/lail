@@ -1,4 +1,3 @@
-#include <curses.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <strings.h>
@@ -8,7 +7,7 @@ int main(int argc, char *argv[])
 {
 	init();
 
-	process();
+	key_process();
 
 	finish();
 	return 0;

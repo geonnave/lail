@@ -1,15 +1,12 @@
-CFLAGS=
+CFLAGS= -Wall -W -ggdb3 -O0
 CC=clang
 OUT=lail
 
 main: lail.o
-	$(CC) main.c -o $(OUT) lail.o window.o -lncurses
+	$(CC) $(CFLAGS) main.c -o $(OUT) lail.o -lncurses
 
-lail.o: window.o lail.c
+lail.o: lail.c
 	$(CC) $(CFLAGS) -c lail.c -lncurses
-
-window.o: window.c
-	$(CC) $(CFLAGS) -c window.c -lncurses
 
 clean: 
 	rm -rf $(OUT)

@@ -1,7 +1,14 @@
-#include "window.h"
 #include "lail.h"
 
-WINDOW *window;
+typedef enum {
+	SEARCH,
+	NAVIGATE
+} key_state_t;
+
+struct cursor_pos {
+	int y;
+	int x;
+};
 
 void init()
 {
@@ -10,21 +17,31 @@ void init()
 	initscr();
 
 	getmaxyx(stdscr, ymax, xmax);
-	window = create_window(0, 0, ymax, xmax, 0);
 
 	start_color();
 	init_pair(1, COLOR_CYAN, COLOR_BLACK);
 }
 
-void process()
+void key_process()
 {
-	int ch, ymax, xmax;
+	char ch;
+	struct cursor_pos max, current;
+	key_state_t state = SEARCH;
 
 	ch = 0;
-	while(ch != 'q') {
-		getmaxyx(window, ymax, xmax);	// get bottom row
-		mvprintw(ymax-1, 0, "teste");
-		mvchgat(ymax-1, 0, -1, A_STANDOUT, 1, NULL);
+	current.y = 0;
+	current.x = 0;
+	getmaxyx(stdscr, max.y, max.x);	// get bottom row
+	mvprintw(max.y-1, current.x, "/");
+	while(ch != EOF) {
+		if (state == SEARCH) {
+			if (ch == 8)
+				current.x--;
+			else
+				current.x++;
+			mvprintw(max.y, current.x, ch);
+			mvchgat(max.y-1, current.x, -1, A_STANDOUT, 1, NULL);
+		}
 		refresh();
 		ch = getch();
 	}
@@ -39,6 +56,5 @@ int read_filter()
 
 void finish()
 {
-	destroy_window(window);
 	endwin();
 }

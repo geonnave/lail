@@ -1,9 +1,5 @@
 #include "lail.h"
-
-typedef enum {
-	SEARCH,
-	NAVIGATE
-} key_state_t;
+#include "body.h"
 
 struct cursor_pos {
 	int y;
@@ -48,22 +44,14 @@ void key_process()
 {
 	int *input;
 	int ch, in_pos;
-	int len = 0, i = 0;
-	int fd, wd;
-	char buffer[BUF_LEN];
-	char word[256];
-	struct inotify_event *event;
 	struct cursor_pos max, current;
-	FILE *fp;
-
-	if ((fd = inotify_init()) < 0) 
-		return 1;
-
-	wd = inotify_add_watch(fd, "foo", IN_MODIFY);
+	pthread_t pth;
 
 	ch = in_pos = current.y = current.x = 0;
 
 	input = malloc(sizeof(input)*CMD_SIZE);
+
+	pthread_create(&pth, NULL, process_file_modif, "geo");
 
 	form_driver(cmd_form, '/');
 	while ((ch = getch()) != KEY_F(2)) {
@@ -76,7 +64,7 @@ void key_process()
 				input[in_pos--] = 0;
 			}
 			break;
-		case KEY_ENTER:
+		case 10:
 			while (current.x-- > 1)
 				form_driver(cmd_form, REQ_DEL_PREV);
 			// do stuff with input
@@ -90,6 +78,8 @@ void key_process()
 		}
 		refresh();
 	}
+
+	pthread_join(pth, NULL);
 }
 
 int read_filter()

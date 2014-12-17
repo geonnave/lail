@@ -1,14 +1,12 @@
 #ifndef LAIL_H
 #define LAIL_H
 
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <strings.h>
+#include <pthread.h>
 #include <curses.h>
 #include <form.h>
-#include <sys/inotify.h>
-
-#define EVENT_SIZE  ( sizeof (struct inotify_event) )
-#define BUF_LEN ( 1024 * ( EVENT_SIZE + 16 ) )
 
 #define CMD_SIZE 256
 

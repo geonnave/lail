@@ -7,10 +7,10 @@
 
 int main(void)
 {
-	init();
+	lail_init();
 
-	key_process();
+	lail_run();
 
-	finish();
+	lail_finish();
 	return 0;
 }

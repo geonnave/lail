@@ -1,18 +1,9 @@
 #include "lail.h"
-#include "body.h"
+#include "buffer.h"
+#include "cmd_line.h"
 
-struct cursor_pos {
-	int y;
-	int x;
-};
-
-FORM *cmd_form;
-FIELD *fields[2];
-
-void init()
+void lail_init()
 {
-	int ymax, xmax;
-
 	initscr();
 	start_color();
 	cbreak();
@@ -26,71 +17,24 @@ void init()
 	init_pair(1, COLOR_WHITE, COLOR_GREY);
 	init_pair(2, COLOR_WHITE, COLOR_GREY_STRONG);
 
-	// create the command field at the bottom of the standard screen
-	getmaxyx(stdscr, ymax, xmax);
-	fields[0] = new_field(1, xmax, ymax-1, 0, 0, 0);
-	fields[1] = NULL;
+	cmd_line_init();
 
-	set_field_back(fields[0], COLOR_PAIR(1));
-	set_field_fore(fields[0], COLOR_PAIR(2));
-	field_opts_off(fields[0], O_AUTOSKIP);
-	
-	cmd_form = new_form(fields);
-	post_form(cmd_form);
 	refresh();
 }
 
-void key_process()
+void lail_run()
 {
-	int *input;
-	int ch, in_pos;
-	struct cursor_pos max, current;
-	pthread_t pth;
+	pthread_t pth_buffer, pth_cmd_line;
 
-	ch = in_pos = current.y = current.x = 0;
+	pthread_create(&pth_buffer, NULL, process_file_modif, "geo");
+	pthread_create(&pth_cmd_line, NULL, process_key_input, "geo");
 
-	input = malloc(sizeof(input)*CMD_SIZE);
-
-	pthread_create(&pth, NULL, process_file_modif, "geo");
-
-	form_driver(cmd_form, '/');
-	while ((ch = getch()) != KEY_F(2)) {
-		getmaxyx(stdscr, max.y, max.x);
-		getyx(stdscr, current.y, current.x);
-		switch(ch) {
-		case KEY_BACKSPACE:
-			if (current.x > 1) {
-				form_driver(cmd_form, REQ_DEL_PREV);
-				input[in_pos--] = 0;
-			}
-			break;
-		case 10:
-			while (current.x-- > 1)
-				form_driver(cmd_form, REQ_DEL_PREV);
-			// do stuff with input
-			break;
-		default:
-			if (current.x < max.x-2) {
-				form_driver(cmd_form, ch);
-				input[in_pos++] = ch;
-			}
-			break;
-		}
-		refresh();
-	}
-
-	pthread_join(pth, NULL);
+	pthread_join(pth_cmd_line, NULL);
+	pthread_join(pth_buffer, NULL);
 }
 
-int read_filter()
+void lail_finish()
 {
-	return 0;
-}
-
-void finish()
-{
-	unpost_form(cmd_form);
-	free_form(cmd_form);
-	free_field(fields[0]);
+	cmd_line_finish();
 	endwin();
 }

@@ -8,16 +8,11 @@
 #include <curses.h>
 #include <form.h>
 
-#define CMD_SIZE 256
-
-#define KEY_ENTER 10
-
 #define COLOR_GREY 8
 #define COLOR_GREY_STRONG 9
 
-void init();
-void key_process();
-int read_filter();
-void finish();
+void lail_init();
+void lail_run();
+void lail_finish();
 
 #endif

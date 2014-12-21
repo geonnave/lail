@@ -1,3 +1,4 @@
+#include "lail.h"
 #include "cmd_line.h"
 
 struct cursor_pos {
@@ -27,7 +28,18 @@ void cmd_line_init()
 
 void *process_key_input(void *arg)
 {
-	int *input;
+	int i = 0;
+
+	while (i++ < 4) {
+		pthread_mutex_lock(&lock_curses);
+		attron(COLOR_PAIR(1));
+		mvprintw(5, 0, "cmd_line %d", i);
+		attroff(COLOR_PAIR(1));
+		refresh();
+		pthread_mutex_unlock(&lock_curses);
+		sleep(2);
+	}
+/*	int *input;
 	int ch, in_pos;
 	struct cursor_pos max, current;
 
@@ -60,7 +72,7 @@ void *process_key_input(void *arg)
 		}
 		refresh();
 	}
-	return;
+	return;*/
 }
 
 void do_curses_form(int cmd) 

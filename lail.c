@@ -4,6 +4,7 @@
 
 void lail_init()
 {
+	pthread_mutex_init(&lock_curses, NULL);
 	initscr();
 	start_color();
 	cbreak();
@@ -36,5 +37,6 @@ void lail_run()
 void lail_finish()
 {
 	cmd_line_finish();
+	pthread_mutex_destroy(&lock_curses);
 	endwin();
 }

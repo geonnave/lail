@@ -11,8 +11,12 @@
 #define COLOR_GREY 8
 #define COLOR_GREY_STRONG 9
 
-void lail_init();
-void lail_run();
-void lail_finish();
+#define BUF_MAX 256
+#define CMD_MAX 128
+
+pthread_mutex_t lock_curses;
+
+char buffer[BUF_MAX];
+char cmd[CMD_MAX];
 
 #endif

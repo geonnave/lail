@@ -1,17 +1,16 @@
+#include "lail.h"
 #include "buffer.h"
 
 void *process_file_modif(void *arg)
 {
-	char *ch;
 	int i = 0;
 
-	ch = (char *) arg;
-
-	while (i++ < 10) {
-//		printf("%c[%d;%df",0x1B,10,10);
-		mvprintw(10, 10, "ch: %s", ch);
+	while (i++ < 4) {
+		pthread_mutex_lock(&lock_curses);
+		mvprintw(1, 0, "buffer %d", i);
+		refresh();
+		pthread_mutex_unlock(&lock_curses);
 		sleep(1);
-//		printf("arg: %s", ch);
 	}
 
 	return NULL;

@@ -1,11 +1,6 @@
 #include "lail.h"
 #include "cmd_line.h"
 
-struct cursor_pos {
-	int y;
-	int x;
-};
-
 FORM *cmd_form;
 FIELD *fields[2];
 
@@ -24,60 +19,47 @@ void cmd_line_init()
 	
 	cmd_form = new_form(fields);
 	post_form(cmd_form);
+
+	cmd_update('/');
 }
 
-void *process_key_input(void *arg)
+void *key_input(void *arg)
 {
-	int i = 0;
+	int c = 0;
 
-	while (i++ < 4) {
-		pthread_mutex_lock(&lock_curses);
-		attron(COLOR_PAIR(1));
-		mvprintw(5, 0, "cmd_line %d", i);
-		attroff(COLOR_PAIR(1));
-		refresh();
-		pthread_mutex_unlock(&lock_curses);
-		sleep(2);
+	while (c != KEY_F(2)) {
+		c = getch();
+		pthread_mutex_lock(&cmd_lock);
+		cmd_char = c;
+		cmd_changed = 1;
+		pthread_mutex_unlock(&cmd_lock);
+		usleep(500);
 	}
-/*	int *input;
-	int ch, in_pos;
-	struct cursor_pos max, current;
+	return NULL;
+}
 
-	ch = in_pos = current.y = current.x = 0;
+void process_char(int ch)
+{
+	struct cursor_pos current;
 
-	input = malloc(sizeof(input)*CMD_SIZE);
-
-	do_curses_form('/');
-	while ((ch = getch()) != KEY_F(2)) {
-		getmaxyx(stdscr, max.y, max.x);
-		getyx(stdscr, current.y, current.x);
-		switch(ch) {
-		case KEY_BACKSPACE:
-			if (current.x > 1) {
-				do_curses_form(REQ_DEL_PREV);
-				input[in_pos--] = 0;
-			}
-			break;
-		case 10:
-			while (current.x-- > 1)
-				do_curses_form(REQ_DEL_PREV);
-			// do stuff with input
-			break;
-		default:
-			if (current.x < max.x-2) {
-				do_curses_form(ch);
-				input[in_pos++] = ch;
-			}
-			break;
+	getyx(stdscr, current.y, current.x);
+	switch (ch) {
+	case KEY_BACKSPACE:
+		if (cmd_pos > 0 && current.x > 1) {
+			cmd_input[cmd_pos--] = '\0';
+			cmd_update(REQ_DEL_PREV);
 		}
-		refresh();
+	default:
+		if (cmd_pos < CMD_MAX-1) {
+			cmd_input[cmd_pos++] = ch;
+			cmd_update(ch);
+		}
 	}
-	return;*/
 }
 
-void do_curses_form(int cmd) 
+void cmd_update(int ch)
 {
-	form_driver(cmd_form, cmd);
+	form_driver(cmd_form, ch);
 }
 
 void cmd_line_finish()

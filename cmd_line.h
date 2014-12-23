@@ -11,7 +11,10 @@
 
 #define KEY_ENTER 10
 
-void *process_key_input(void *arg);
+void *key_input(void *arg);
+void process_input(int ch);
+void cmd_update(int ch);
 void cmd_line_init();
+void cmd_line_finish();
 
 #endif /* CMD_LINE_H */

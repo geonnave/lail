@@ -1,5 +1,5 @@
 CFLAGS= -Wall -W -ggdb3 -O0
-L_FLAGS= -lncurses -lform -lpthread
+L_FLAGS= -lncurses -lform -lpthread -lrt
 CC=gcc
 OBJ=lail.o buffer.o cmd_line.o
 OUT=lail

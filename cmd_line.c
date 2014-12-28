@@ -31,9 +31,9 @@ void *key_input(void *arg)
 		c = getch();
 		pthread_mutex_lock(&cmd_lock);
 		cmd_char = c;
-		cmd_changed = 1;
+		task_mask |= CMD_LINE_MASK;
+		pthread_cond_signal(&cmd_cv);
 		pthread_mutex_unlock(&cmd_lock);
-		usleep(500);
 	}
 	return NULL;
 }
@@ -49,6 +49,7 @@ void process_char(int ch)
 			cmd_input[cmd_pos--] = '\0';
 			cmd_update(REQ_DEL_PREV);
 		}
+		break;
 	default:
 		if (cmd_pos < CMD_MAX-1) {
 			cmd_input[cmd_pos++] = ch;

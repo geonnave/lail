@@ -24,15 +24,21 @@ struct cursor_pos {
 	int x;
 };
 
-pthread_mutex_t cmd_lock;
-pthread_cond_t cmd_cv, bf_cv;
+struct cmd_line {
+	int cmd[CMD_MAX];
+	int len;
+};
 
-char buffer[BUF_MAX];
-char cmd_input[CMD_MAX];
-int cmd_pos;
+pthread_mutex_t cmd_lock;
+pthread_cond_t cmd_cv;
+
+struct cmd_line input;
+struct cmd_line pattern;
+
+int buffer[BUF_MAX];
 
 char task_mask;
 
-int bf, bf_changed, cmd_char, cmd_changed;
+int bf, cmd_char;
 
 #endif

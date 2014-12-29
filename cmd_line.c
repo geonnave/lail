@@ -20,7 +20,7 @@ void cmd_line_init()
 	cmd_form = new_form(fields);
 	post_form(cmd_form);
 
-	cmd_update('/');
+	form_driver(cmd_form, '/');
 }
 
 void *key_input(void *arg)
@@ -35,32 +35,45 @@ void *key_input(void *arg)
 		pthread_cond_signal(&cmd_cv);
 		pthread_mutex_unlock(&cmd_lock);
 	}
+
 	return NULL;
+}
+
+int form_update(int ch)
+{
+	return form_driver(cmd_form, ch);
 }
 
 void process_char(int ch)
 {
-	struct cursor_pos current;
+	int i = 0, au = 0;
+	struct cursor_pos current, max;
 
 	getyx(stdscr, current.y, current.x);
+	getmaxyx(stdscr, max.y, max.x);
 	switch (ch) {
 	case KEY_BACKSPACE:
-		if (cmd_pos > 0 && current.x > 1) {
-			cmd_input[cmd_pos--] = '\0';
-			cmd_update(REQ_DEL_PREV);
+		if (input.len > 0 && current.x > 1) {
+			input.cmd[--input.len] = '\0';
+			form_update(REQ_DEL_PREV);
+		}
+		break;
+	case KEY_ENTER:
+		memset(pattern.cmd, '\0', CMD_MAX * sizeof(int));
+		pattern.len = input.len;
+		while (input.len > 0 && current.x > 1) {
+			input.len--;
+			pattern.cmd[input.len] = input.cmd[input.len];
+			input.cmd[input.len] = '\0';
+			form_update(REQ_DEL_PREV);
 		}
 		break;
 	default:
-		if (cmd_pos < CMD_MAX-1) {
-			cmd_input[cmd_pos++] = ch;
-			cmd_update(ch);
+		if (input.len < CMD_MAX-1 && input.len < max.x-2) {
+			if (form_update(ch) == 0)
+				input.cmd[input.len++] = ch;
 		}
 	}
-}
-
-void cmd_update(int ch)
-{
-	form_driver(cmd_form, ch);
 }
 
 void cmd_line_finish()

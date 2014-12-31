@@ -13,11 +13,13 @@
 #define COLOR_GREY 8
 #define COLOR_GREY_STRONG 9
 
-#define BUF_MAX 256
-#define CMD_MAX 128
-
 #define CMD_LINE_MASK 0x1
 #define BUFFER_MASK 0x2
+
+#define CMD_MAX 512
+
+#define BUF_MAX_LINES 512
+#define BUF_MAX_COLS 512
 
 struct cursor_pos {
 	int y;
@@ -29,16 +31,24 @@ struct cmd_line {
 	int len;
 };
 
+struct buffer {
+	int *arr;
+	int len;
+	int sz;
+};
+
 pthread_mutex_t cmd_lock;
 pthread_cond_t cmd_cv;
 
-struct cmd_line input;
-struct cmd_line pattern;
+struct buffer input;
+struct buffer pattern;
 
-int buffer[BUF_MAX];
+struct buffer buf_lail;
 
 char task_mask;
 
 int bf, cmd_char;
+
+void create_buffer(struct buffer *buf, int size);
 
 #endif

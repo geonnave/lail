@@ -1,10 +1,16 @@
 #include <sys/inotify.h>
+#include <stdlib.h>
 #include "lail.h"
 #include "buffer.h"
 
+void buffer_init()
+{
+	create_buffer(&buf_lail, BUF_MAX_LINES * BUF_MAX_COLS);
+}
+
 void *file_modif(void *arg)
 {
-	int len, i, fd, wd, buffer[BUF_MAX];
+	int len, i, fd, wd, buffer[BUF_LEN];
 	char *filename, word[256];
 	struct inotify_event *event;
 	FILE *fp;

@@ -28,6 +28,7 @@ void lail_init()
 	task_mask = bf = cmd_char = input.len = pattern.len = 0;
 
 	cmd_line_init();
+	buffer_init();
 
 	refresh();
 }

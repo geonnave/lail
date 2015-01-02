@@ -33,37 +33,6 @@ void lail_init()
 	refresh();
 }
 
-void lail_run()
-{
-	int ch = 0;
-	struct cursor_pos current;
-	pthread_t pth_buffer, pth_cmd_line;
-
-	pthread_create(&pth_buffer, NULL, file_modif, NULL);
-	pthread_create(&pth_cmd_line, NULL, key_input, NULL);
-
-	while(ch != KEY_F(2)) {
-		pthread_mutex_lock(&cmd_lock);
-		pthread_cond_wait(&cmd_cv, &cmd_lock);
-		ch = cmd_char;
-		if ((task_mask & CMD_LINE_MASK) == CMD_LINE_MASK) {
-			process_char(ch);
-			task_mask &= ~CMD_LINE_MASK;
-		}
-		if ((task_mask & BUFFER_MASK) == BUFFER_MASK) {
-			getyx(stdscr, current.y, current.x);
-			mvprintw(2, 1, "from buffer, %d", bf);
-			move(current.y, current.x);
-			task_mask &= ~BUFFER_MASK;
-		}
-		pthread_mutex_unlock(&cmd_lock);
-		refresh();
-	}
-
-	pthread_join(pth_cmd_line, NULL);
-	pthread_join(pth_buffer, NULL);
-}
-
 void lail_finish()
 {
 	cmd_line_finish();

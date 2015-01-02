@@ -11,5 +11,7 @@
 
 void buffer_init();
 void *file_modif(void *arg);
+void append_circ_buffer(int ch);
+void buffer_to_curses();
 
 #endif /* BODY_H */

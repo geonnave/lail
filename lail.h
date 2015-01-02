@@ -26,13 +26,16 @@ struct cursor_pos {
 	int x;
 };
 
-struct cmd_line {
-	int cmd[CMD_MAX];
-	int len;
-};
-
 struct buffer {
 	int *arr;
+	int len;
+	int sz;
+};
+
+struct circ_buffer {
+	int *arr;
+	int *curr;
+	int pos;
 	int len;
 	int sz;
 };
@@ -43,12 +46,14 @@ pthread_cond_t cmd_cv;
 struct buffer input;
 struct buffer pattern;
 
-struct buffer buf_lail;
+struct circ_buffer buf_lail;
 
 char task_mask;
 
 int bf, cmd_char;
 
 void create_buffer(struct buffer *buf, int size);
+void create_circ_buffer(struct circ_buffer *buf, int size);
+void lail_run();
 
 #endif

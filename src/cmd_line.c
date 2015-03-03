@@ -33,7 +33,8 @@ void *key_input(void *arg)
 	while (c != KEY_F(2)) {
 		c = getch();
 		pthread_mutex_lock(&cmd_lock);
-		cmd_char = c;
+		if (input.len < CMD_MAX-1)
+			input.arr[input.len++] = c;
 		task_mask |= CMD_LINE_MASK;
 		pthread_cond_signal(&cmd_cv);
 		pthread_mutex_unlock(&cmd_lock);
@@ -47,14 +48,15 @@ int form_update(int ch)
 	return form_driver(cmd_form, ch);
 }
 
-void process_char(int ch)
+void cmd_to_curses()
 {
-	int i = 0, au = 0;
+	int i = 0, ch = 0;
 	struct cursor_pos current, max;
 
 	getyx(stdscr, current.y, current.x);
 	getmaxyx(stdscr, max.y, max.x);
-	switch (ch) {
+
+	switch(input.arr[input.len-1]) {
 	case KEY_BACKSPACE:
 		if (input.len > 0 && current.x > 1) {
 			input.arr[--input.len] = '\0';

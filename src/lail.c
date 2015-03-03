@@ -32,9 +32,8 @@ void lail_run()
 	while(ch != KEY_F(2)) {
 		pthread_mutex_lock(&cmd_lock);
 		pthread_cond_wait(&cmd_cv, &cmd_lock);
-		ch = cmd_char;
 		if ((task_mask & CMD_LINE_MASK) == CMD_LINE_MASK) {
-			process_char(ch);
+			cmd_to_curses();
 			task_mask &= ~CMD_LINE_MASK;
 		}
 		if ((task_mask & BUFFER_MASK) == BUFFER_MASK) {

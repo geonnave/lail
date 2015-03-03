@@ -55,5 +55,6 @@ int bf, cmd_char;
 void create_buffer(struct buffer *buf, int size);
 void create_circ_buffer(struct circ_buffer *buf, int size);
 void lail_run();
+void cmd_to_curses();
 
 #endif

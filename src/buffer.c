@@ -36,17 +36,17 @@ void *file_modif(void *arg)
 			event = (struct inotify_event *) &buffer[i];
 			if (event->mask & IN_MODIFY) {
 				while ((fscanf(fp, "%c", &ch)) != EOF)
-					process_read_char(ch);
+					buf_process_read_char(ch);
 			}
 			i += sizeof(struct inotify_event *) + event->len;
 		}
-		process_read_char(10);
+		buf_process_read_char(10);
 	}
 
 	return NULL;
 }
 
-void process_read_char(int ch)
+void buf_process_read_char(int ch)
 {
 	pthread_mutex_lock(&cmd_lock);
 	// TODO: check ch value

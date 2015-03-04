@@ -21,15 +21,25 @@ FORM *cmdl_form;
 FIELD *cmdl_field[2];
 
 /* write a character to be showed on the cmdl */
-void put_char(char ch)
+int cmdl_put_char(char ch)
 {
+	struct cursor_pos len;
+
 	//todo: sanitize ch
+
+	getmaxyx(stdscr, len.y, len.x);
+	if (++cmdl_currx > len.x)
+		return -1;
+
 	form_driver(cmdl_form, ch);
+	return 0;
 }
 
 void cmdl_init()
 {
 	struct cursor_pos len;
+
+	cmdl_currx = 0;
 
 	getmaxyx(stdscr, len.y, len.x);
 	cmdl_field[0] = new_field(1, len.x, len.y-1, 0, 0, 0);
@@ -44,7 +54,9 @@ void cmdl_init()
 	cmdl_form = new_form(cmdl_field);
 	post_form(cmdl_form);
 
+	// insert '/' as an indicator for query operator and increment x index
 	form_driver(cmdl_form, '/');
+	cmdl_currx++;
 }
 
 void cmdl_terminate()

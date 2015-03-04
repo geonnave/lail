@@ -10,6 +10,12 @@ struct cursor_pos {
 	int x;
 };
 
+struct cmdl_in {
+	int cmd;
+	char *stuff;
+	int len;
+};
+
 void lail_run();
 
 #endif /* LAIL_H */

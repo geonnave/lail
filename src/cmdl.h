@@ -4,8 +4,10 @@
 
 #include <curses.h>
 
+int cmdl_currx;
+
 void cmdl_init();
 void cmdl_terminate();
-void put_char(char ch);
+int cmdl_put_char(char ch);
 
 #endif /* CMDL_H */

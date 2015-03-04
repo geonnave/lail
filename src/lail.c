@@ -10,14 +10,16 @@
 
 void lail_run()
 {
-	char *tmp = "bla\0";
+	char *tmp = "blafdajdsfdssdfjsdklfdfkjfdsgdsddfjsdklafjsdlkfjfklkfaaflfjfd\0";
 
-	while (1) {
+	while (*tmp) {
 		if (*tmp) {
-			put_char(*tmp);
+			buffer_put_char(*tmp);
+			cmdl_put_char(*tmp);
 			tmp++;
-			sleep(1);
+			usleep(10000);
 		}
 		refresh();
 	}
+	sleep(1);
 }

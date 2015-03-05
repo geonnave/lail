@@ -16,6 +16,8 @@ struct cmdl_in {
 	int len;
 };
 
+extern char filename[256];
+
 void lail_run();
 
 #endif /* LAIL_H */

@@ -1,4 +1,3 @@
-
 #ifndef CMDL_H
 #define CMDL_H
 

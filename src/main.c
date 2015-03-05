@@ -1,13 +1,20 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <curses.h>
 
 #include "lail.h"
 #include "buffer.h"
 #include "cmdl.h"
 
-void lail_init()
+void lail_init(char *fname)
 {
+	/* copy the filename to a global variable */
+	size_t len = strlen(fname);
+	if (len >= sizeof(filename))
+		len = sizeof(filename) - 1;
+	memcpy(filename, fname, len);
+	filename[len] = '\0';
 
 	/* ncurses library init functions: */
 	initscr();		// initialize default screen
@@ -31,9 +38,10 @@ void lail_terminate()
 	endwin();
 }
 
-int main(void)
+int main(int argc, char* argv[])
 {
-	lail_init();
+	//todo: sanitize argv[1] before passing
+	lail_init(argv[1]);
 
 	lail_run();
 

@@ -29,7 +29,6 @@ void read_stuff()
 		FD_ZERO(&rfds);
 		FD_SET(0, &rfds);
 		FD_SET(fd_file, &rfds);
-		//ret = select(1, &rfds, NULL, NULL, &tv);
 		ret = select(fd_file+1, &rfds, NULL, NULL, &tv);
 		if (ret < 0) {
 			buffer_put_char('e');

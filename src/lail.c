@@ -15,7 +15,7 @@
 #define EVENT_SIZE (sizeof (struct inotify_event))
 
 /* reasonable guess as to size of 1024 events */
-#define BUF_LEN (1024 * (EVENT_SIZE + 16)
+#define BUF_LEN (1024 * (EVENT_SIZE + 16))
 
 /* lail.c
  * this is the file that do all the core work of lail program
@@ -43,8 +43,8 @@ void lail_run()
 {
 	fd_set rfds;
 	struct timeval tv;
-	int ret, ifd, mfw;
-	char ch;
+	int ret, ifd, mfw, len, i;
+	char ch, buf_in[BUF_LEN];
 
 	ifd = inotify_init();
 	if (ifd < 0)

@@ -43,34 +43,66 @@ void lail_run()
 {
 	fd_set rfds;
 	struct timeval tv;
-	int ret, ifd, mfw, len, i;
+	int ret, ifd, iwd, len, i;
 	char ch, buf_in[BUF_LEN];
+	FILE *fp;
+
+	refresh();
+
+	if ((fp = fopen(filename, "r")) == NULL) {
+		printf("error opening file");
+		exit(1);
+	}
 
 	ifd = inotify_init();
-	if (ifd < 0)
-		perror("inotify_init");
+	if (ifd < 0) {
+		printf("error inotify_init");
+		exit(1);
+	}
 
-	mfw = inotify_add_watch(ifd, filename, IN_MODIFY);
-	if (mfw < 0)
-		perror("inotify add watch");
+	iwd = inotify_add_watch(ifd, filename, IN_MODIFY);
+	if (iwd < 0) {
+		printf("error inotify add watch");
+		exit(1);
+	}
 
 	tv.tv_sec = 2;
 	tv.tv_usec = 0;
 
 	while (1) {
+		/* asas batendo */
 		FD_ZERO(&rfds);
+
+		/* marcha de decolagem */
 		FD_SET(0, &rfds);
-		ret = select(1, &rfds, NULL, NULL, &tv);
+		FD_SET(ifd, &rfds);
+
+		/* turbinas e.. */
+		ret = select(ifd+1, &rfds, NULL, NULL, &tv);
+
+		/* vai!!! */
 		if (ret < 0) {
 			buffer_put_char('e');
 		} else if (FD_ISSET(0, &rfds)) {
 			scanf("%c", &ch);
 			process_char_to_cmdl(ch);
-		} else {
-			buffer_put_char('_');
+		} else if (FD_ISSET(ifd, &rfds)) {
+			len = read(ifd, buf_in, BUF_LEN);
+			i = 0;
+			while (i < len) {
+				struct inotify_event *event = (struct inotify_event *) &buf_in[i];
+				if (event->mask & IN_MODIFY)
+					while ((fscanf(fp, "%c", &ch)) != EOF)
+						process_char_to_buffer(ch);
+				i += EVENT_SIZE + event->len;
+			}
 		}
-		usleep(10000);
+
+		/* do NOT forget to refresh the screen!!! */
 		refresh();
 	}
+
+	inotify_rm_watch(ifd, iwd);
+	close(ifd);
 }
 

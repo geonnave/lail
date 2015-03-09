@@ -29,6 +29,7 @@ int buffer_put_char(char ch)
 	}
 
 	mvprintw(buf_curr.y, buf_curr.x, "%c", ch);
+
 	return 0;
 }
 

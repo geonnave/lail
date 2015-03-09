@@ -17,6 +17,7 @@ struct cmdl_in {
 };
 
 extern char filename[256];
+extern int cmdl_currx;
 
 void lail_run();
 

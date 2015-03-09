@@ -20,6 +20,8 @@ FORM *cmdl_form;
  */
 FIELD *cmdl_field[2];
 
+int cmdl_currx;
+
 /* write a character to be showed on the cmdl */
 int cmdl_put_char(char ch)
 {

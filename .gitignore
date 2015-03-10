@@ -2,5 +2,5 @@
 *.o
 lail
 .notes
-cscope.*
+*cscope*
 foo*

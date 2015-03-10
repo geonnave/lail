@@ -40,6 +40,7 @@ void lail_terminate()
 
 int main(int argc, char* argv[])
 {
+
 	if (argc < 2) {
 		printf("lail error: must provide filename\n");
 		return 1;

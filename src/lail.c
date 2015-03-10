@@ -3,6 +3,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
+#include <string.h>
 
 #include <sys/select.h>
 
@@ -19,8 +20,7 @@
 /* reasonable guess as to size of 1024 events */
 #define BUF_LEN 128
 
-/* this is a global variable, *declarated* in lail.h and *defined* here. */
-char filename[256] = { '\0' };
+int fd = 0;
 
 void process_char_to_buffer(char ch)
 {
@@ -28,29 +28,18 @@ void process_char_to_buffer(char ch)
 	buffer_put_char(ch);
 }
 
-void process_char_to_cmdl(char ch)
-{
-	/* todo: actually process the char before sending to cmdl show */
-	cmdl_put_char(ch);
-}
-
 /* this function will 
  * use *select* to read from stdin without blocking and 
  * use *inotify* to read from file only when new stuff are added */
 void lail_run()
 {
-	int ret, fd, r, i;
+	int ret, r_bytes, i;
 	char ch;
 	char buf_in[BUF_LEN] = { '0' };
 	struct cursor_pos max;
 	fd_set rfds;
 
 	refresh();
-
-	if (!(fd = open(filename, O_RDONLY))) {
-		printf("error open file");
-		exit(1);
-	}
 
 	while (1) {
 		/* asas batendo */
@@ -68,11 +57,11 @@ void lail_run()
 			buffer_put_char('e');
 		if (FD_ISSET(0, &rfds)) {
 			scanf("%c", &ch);
-			process_char_to_cmdl(ch);
+			cmdl_process_char(ch);
 		}
 		if (FD_ISSET(fd, &rfds)) {
-			r = read(fd, buf_in, BUF_LEN);
-			for (i = 0; i < r; i++)
+			r_bytes = read(fd, buf_in, BUF_LEN);
+			for (i = 0; i < r_bytes ; i++)
 				process_char_to_buffer(buf_in[i]);
 		}
 
@@ -83,5 +72,35 @@ void lail_run()
 		/* do NOT forget to refresh the screen!!! */
 		refresh();
 	}
+}
+
+void lail_init(char *fname)
+{
+	if (!(fd = open(fname, O_RDONLY))) {
+		printf("error open file");
+		exit(1);
+	}
+
+	/* ncurses library init functions: */
+	initscr();		// initialize default screen
+	cbreak();		// no char buffering (i.e. get each char as it is been typed
+	noecho();		// disable automatic echo of typed chars
+	keypad(stdscr, TRUE);	// enable F-keys, delete and other special keys
+	start_color();		// enable using of colors
+
+	init_pair(1, COLOR_BLUE, COLOR_BLACK);
+
+	// initialize command line stuff
+	cmdl_init();
+
+	// initialize buffer stuff
+	buffer_init();
+}
+
+void lail_terminate()
+{
+	close(fd);
+	cmdl_terminate();
+	endwin();
 }
 

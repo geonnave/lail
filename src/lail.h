@@ -3,7 +3,10 @@
 
 #include <curses.h>
 
+/* color pairs */
 #define CP_CMDL_BACK 1
+
+#define CMDL_MAX 256
 
 struct cursor_pos {
 	int y;
@@ -12,13 +15,15 @@ struct cursor_pos {
 
 struct cmdl_in {
 	int cmd;
-	char *stuff;
+	char *content;
 	int len;
 };
 
-extern char filename[256];
 extern int cmdl_currx;
+extern struct cmdl_in cmdl_in;
 
 void lail_run();
+void lail_init(char *fname);
+void lail_terminate();
 
 #endif /* LAIL_H */

@@ -21,27 +21,40 @@ FORM *cmdl_form;
 FIELD *cmdl_field[2];
 
 int cmdl_currx;
+struct cmdl_in cmdl_in;
 
-/* write a character to be showed on the cmdl */
-int cmdl_put_char(char ch)
+/* process a character entered at cmdl */
+int cmdl_process_char(char ch)
 {
 	struct cursor_pos len;
 
-	//todo: sanitize ch
-
 	getmaxyx(stdscr, len.y, len.x);
-	if (++cmdl_currx > len.x)
-		return -1;
 
-	form_driver(cmdl_form, ch);
+	switch(ch) {
+	case 13:
+		cmdl_currx++;
+		form_driver(cmdl_form, '@');
+		break;
+	case 127:
+		if (!cmdl_currx)
+			return -1;
+		cmdl_currx--;
+		form_driver(cmdl_form, REQ_DEL_PREV);
+		break;
+	default:
+		if (cmdl_currx+2 > len.x)
+			return -1;
+		cmdl_currx++;
+		form_driver(cmdl_form, ch);
+		break;
+	}
+
 	return 0;
 }
 
 void cmdl_init()
 {
 	struct cursor_pos len;
-
-	cmdl_currx = 0;
 
 	getmaxyx(stdscr, len.y, len.x);
 	cmdl_field[0] = new_field(1, len.x, len.y-1, 0, 0, 0);
@@ -56,8 +69,14 @@ void cmdl_init()
 	cmdl_form = new_form(cmdl_field);
 	post_form(cmdl_form);
 
+	cmdl_currx = 0;
+
+	cmdl_in.cmd = '/';
+	cmdl_in.content = (char *) malloc(sizeof(cmdl_in.content) * CMDL_MAX);
+	cmdl_in.len = 0;
+
 	// insert '/' as an indicator for query operator and increment x index
-	form_driver(cmdl_form, '/');
+	form_driver(cmdl_form, cmdl_in.cmd);
 	cmdl_currx++;
 }
 

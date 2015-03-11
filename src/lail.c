@@ -22,10 +22,17 @@
 
 int fd = 0;
 
+int must_apply_cmdl = 0;
+
 void process_char_to_buffer(char ch)
 {
 	/* todo: actually process the char before sending to buffer show */
 	buffer_put_char(ch);
+}
+
+void apply_cmdl()
+{
+	must_apply_cmdl = 0;
 }
 
 /* this function will 
@@ -64,6 +71,9 @@ void lail_run()
 			for (i = 0; i < r_bytes ; i++)
 				process_char_to_buffer(buf_in[i]);
 		}
+
+		if (must_apply_cmdl)
+			apply_cmdl();
 
 		/* put the cursor back at the cmdl, for the please of the user */
 		getmaxyx(stdscr, max.y, max.x);

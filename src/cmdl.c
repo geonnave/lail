@@ -47,6 +47,8 @@ int cmdl_process_char(char ch)
 
 		cmdl_currx = 0;
 		set_field_buffer(cmdl_field[0], 0, "");
+
+		must_apply_cmdl = 1;
 		break;
 	case 127:
 		if (!cmdl_currx)

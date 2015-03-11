@@ -14,13 +14,14 @@ struct cursor_pos {
 };
 
 struct cmdl_in {
-	int cmd;
+	char cmd;
 	char *content;
 	int len;
 };
 
 extern int cmdl_currx;
 extern struct cmdl_in cmdl_in;
+extern struct cmdl_in cmdl_query;
 
 void lail_run();
 void lail_init(char *fname);

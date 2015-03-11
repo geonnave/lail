@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include <curses.h>
 #include <form.h>
@@ -22,28 +23,42 @@ FIELD *cmdl_field[2];
 
 int cmdl_currx;
 struct cmdl_in cmdl_in;
+struct cmdl_in cmdl_query;
 
 /* process a character entered at cmdl */
 int cmdl_process_char(char ch)
 {
 	struct cursor_pos len;
+	char *fb = NULL;
 
 	getmaxyx(stdscr, len.y, len.x);
 
 	switch(ch) {
 	case 13:
-		cmdl_currx++;
-		form_driver(cmdl_form, '@');
+		form_driver(cmdl_form, REQ_VALIDATION);
+
+		/* just for precaution */
+		memset(cmdl_query.content, '\0', CMDL_MAX);
+
+		/* here we fetch the cmdl input */
+		fb = field_buffer(cmdl_field[0], 0);
+		memcpy(&cmdl_query.cmd, fb , 1);
+		memcpy(cmdl_query.content, ++fb, CMDL_MAX);
+
+		cmdl_currx = 0;
+		set_field_buffer(cmdl_field[0], 0, "");
 		break;
 	case 127:
 		if (!cmdl_currx)
 			return -1;
+
 		cmdl_currx--;
 		form_driver(cmdl_form, REQ_DEL_PREV);
 		break;
 	default:
 		if (cmdl_currx+2 > len.x)
 			return -1;
+
 		cmdl_currx++;
 		form_driver(cmdl_form, ch);
 		break;
@@ -71,6 +86,10 @@ void cmdl_init()
 
 	cmdl_currx = 0;
 
+	cmdl_query.cmd = '\0';
+	cmdl_query.content = (char *) malloc(sizeof(cmdl_in.content) * CMDL_MAX);
+	cmdl_query.len = 0;
+
 	cmdl_in.cmd = '/';
 	cmdl_in.content = (char *) malloc(sizeof(cmdl_in.content) * CMDL_MAX);
 	cmdl_in.len = 0;
@@ -86,5 +105,7 @@ void cmdl_terminate()
 	free_form(cmdl_form);
 	free_field(cmdl_field[0]);
 	free_field(cmdl_field[1]);
+	free(cmdl_query.content);
+	free(cmdl_in.content);
 }
 

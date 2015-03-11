@@ -47,6 +47,8 @@ int cmdl_process_char(char ch)
 
 		cmdl_currx = 0;
 		set_field_buffer(cmdl_field[0], 0, "");
+
+		must_apply_cmdl = 1;
 		break;
 	case 127:
 		if (!cmdl_currx)
@@ -71,6 +73,12 @@ void cmdl_init()
 {
 	struct cursor_pos len;
 
+	cmdl_currx = 0;
+
+	cmdl_query.cmd = '\0';
+	cmdl_query.content = (char *) malloc(sizeof(cmdl_query.content) * CMDL_MAX);
+	cmdl_query.len = 0;
+
 	getmaxyx(stdscr, len.y, len.x);
 	cmdl_field[0] = new_field(1, len.x, len.y-1, 0, 0, 0);
 	cmdl_field[1] = NULL;
@@ -84,18 +92,8 @@ void cmdl_init()
 	cmdl_form = new_form(cmdl_field);
 	post_form(cmdl_form);
 
-	cmdl_currx = 0;
-
-	cmdl_query.cmd = '\0';
-	cmdl_query.content = (char *) malloc(sizeof(cmdl_in.content) * CMDL_MAX);
-	cmdl_query.len = 0;
-
-	cmdl_in.cmd = '/';
-	cmdl_in.content = (char *) malloc(sizeof(cmdl_in.content) * CMDL_MAX);
-	cmdl_in.len = 0;
-
 	// insert '/' as an indicator for query operator and increment x index
-	form_driver(cmdl_form, cmdl_in.cmd);
+	form_driver(cmdl_form, '/');
 	cmdl_currx++;
 }
 
@@ -106,6 +104,5 @@ void cmdl_terminate()
 	free_field(cmdl_field[0]);
 	free_field(cmdl_field[1]);
 	free(cmdl_query.content);
-	free(cmdl_in.content);
 }
 

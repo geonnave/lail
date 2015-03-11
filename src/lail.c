@@ -22,10 +22,32 @@
 
 int fd = 0;
 
-void process_char_to_buffer(char ch)
+int must_apply_cmdl = 0;
+int must_update_buffer = 0;
+
+void update_buffer()
 {
-	/* todo: actually process the char before sending to buffer show */
-	buffer_put_char(ch);
+	int i = 0;
+
+	for (i = 0; i < file_buf.len; i++)
+		buffer_put_char(file_buf.content[i]);
+	buf_curr.x = buf_curr.y = 0;
+}
+
+void append_buf_in_to_file_buf(char *buf_in, int len)
+{
+	int i = 0;
+
+	for (i = 0; i < len && file_buf.len < FILE_BUF_MAX-1; i++)
+		/* todo: check file_buf.len */
+		file_buf.content[file_buf.len++] = buf_in[i];
+	must_update_buffer = 1;
+}
+
+void apply_cmdl()
+{
+	must_apply_cmdl = 0;
+	must_update_buffer = 1;
 }
 
 /* this function will 
@@ -61,9 +83,14 @@ void lail_run()
 		}
 		if (FD_ISSET(fd, &rfds)) {
 			r_bytes = read(fd, buf_in, BUF_LEN);
-			for (i = 0; i < r_bytes ; i++)
-				process_char_to_buffer(buf_in[i]);
+			append_buf_in_to_file_buf(buf_in, r_bytes);
 		}
+
+		if (must_apply_cmdl)
+			apply_cmdl();
+
+		if (must_update_buffer)
+			update_buffer();
 
 		/* put the cursor back at the cmdl, for the please of the user */
 		getmaxyx(stdscr, max.y, max.x);
@@ -80,6 +107,12 @@ void lail_init(char *fname)
 		printf("error open file");
 		exit(1);
 	}
+
+	file_buf.len = 0;
+	file_buf.content = (char *) malloc(sizeof(file_buf.content) * FILE_BUF_MAX);
+
+	filtered_buf.len = 0;
+	filtered_buf.content = (char *) malloc(sizeof(file_buf.content) * FILE_BUF_MAX);
 
 	/* ncurses library init functions: */
 	initscr();		// initialize default screen

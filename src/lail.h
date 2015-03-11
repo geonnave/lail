@@ -7,6 +7,7 @@
 #define CP_CMDL_BACK 1
 
 #define CMDL_MAX 256
+#define FILE_BUF_MAX (CMDL_MAX * 1024)
 
 struct cursor_pos {
 	int y;
@@ -19,8 +20,17 @@ struct cmdl_in {
 	int len;
 };
 
+struct file_buf {
+	char *content;
+	int len;
+};
+
+struct file_buf file_buf;
+struct file_buf filtered_buf;
+
 extern int cmdl_currx;
-extern struct cmdl_in cmdl_in;
+extern int must_apply_cmdl;
+
 extern struct cmdl_in cmdl_query;
 
 void lail_run();

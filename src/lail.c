@@ -17,36 +17,70 @@
  * this is the file that do all the core work of lail program
  */
 
-/* reasonable guess as to size of 1024 events */
 #define BUF_LEN 128
 
-int fd = 0;
-
+/* global variable */
 int must_apply_cmdl = 0;
+
 int must_update_buffer = 0;
+int is_filtered_set = 0;
+int fd = 0;
+char line_buf[CMDL_MAX] = { '0' };
+
+int match_filter_query(char *line, int len)
+{
+	/*todo: check filter query*/
+	int i = 0;
+
+	printf(">");
+	for (i = 0; i < len; i++)
+		printf("%c", line[i]);
+	printf(", %d<\n", len);
+	return 1;
+}
+
+void apply_cmdl()
+{
+	int i = 0, line_len = 0;
+
+	must_apply_cmdl = 0;
+	must_update_buffer = 1;
+
+	clear();
+
+	filtered_buf.len = 0;
+	line_len = 0;
+	/*for (i = 0; i < file_buf.len; i++, line_len++)
+		if (match_filter_query(p, line_len))
+			filtered_buf.content[filtered_buf.len++] = file_buf.content[i];*/
+}
 
 void update_buffer()
 {
 	int i = 0;
 
-	for (i = 0; i < file_buf.len; i++)
-		buffer_put_char(file_buf.content[i]);
 	buf_curr.x = buf_curr.y = 0;
+	for (i = 0; i < file_buf.len; i++)
+		buffer_put_char(filtered_buf.content[i]);
 }
 
 void append_buf_in_to_file_buf(char *buf_in, int len)
 {
-	int i = 0;
+	int i = 0, line_len = 0;
+	char *p = NULL;
 
-	for (i = 0; i < len && file_buf.len < FILE_BUF_MAX-1; i++)
+	p = buf_in;
+	line_len = 0;
+	for (i = 0; i < len && file_buf.len < FILE_BUF_MAX-1; i++, line_len++) {
 		/* todo: check file_buf.len */
 		file_buf.content[file_buf.len++] = buf_in[i];
-	must_update_buffer = 1;
-}
-
-void apply_cmdl()
-{
-	must_apply_cmdl = 0;
+		if (buf_in[i] == '\n') {
+			if (match_filter_query(p, line_len))
+				filtered_buf.content[filtered_buf.len++] = buf_in[i];
+			p = &buf_in[i+1];
+			line_len = 0;
+		}
+	}
 	must_update_buffer = 1;
 }
 

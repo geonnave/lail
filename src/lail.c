@@ -84,6 +84,11 @@ void append_buf_in_to_file_buf(char *buf_in, int len)
 	must_update_buffer = 1;
 }
 
+void apply_cmdl()
+{
+	must_apply_cmdl = 0;
+}
+
 /* this function will 
  * use *select* to read from stdin without blocking and 
  * use *inotify* to read from file only when new stuff are added */

@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include <sys/select.h>
+#include <regex.h>
 
 #include <curses.h>
 
@@ -29,8 +30,17 @@ char line_buf[CMDL_MAX] = { '0' };
 
 int match_filter_query(char *line, int len)
 {
-	/*todo: actually check filter query! */
-	return (cmdl_query.cmd) ? cmdl_query.cmd == line[0] : 1;
+	int match = 0;
+	regex_t re;
+
+	if (regcomp(&re, cmdl_query.content, REG_EXTENDED|REG_ICASE|REG_NOSUB) != 0)
+		return 0;
+
+	line[len+1] = '\0';
+	match = regexec(&re, line, (size_t) 0, NULL, 0);
+	regfree(&re);
+	return !match;
+	//return (cmdl_query.cmd) ? cmdl_query.cmd == line[0] : 1;
 }
 
 void apply_cmdl()

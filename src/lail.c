@@ -30,14 +30,18 @@ char line_buf[CMDL_MAX] = { '0' };
 
 int match_filter_query(char *line, int len)
 {
+	if (!len)
+		return 0;
+
 	int match = 0;
 	regex_t re;
 
 	if (regcomp(&re, cmdl_query.content, REG_EXTENDED|REG_ICASE|REG_NOSUB) != 0)
 		return 0;
 
-	line[len+1] = '\0';
+	line[len] = '\0';
 	match = regexec(&re, line, (size_t) 0, NULL, 0);
+	line[len] = '\n';
 	regfree(&re);
 	return !match;
 	//return (cmdl_query.cmd) ? cmdl_query.cmd == line[0] : 1;
@@ -54,19 +58,17 @@ void apply_cmdl()
 	clear();
 
 	filtered_buf.len = 0;
-	line_start = file_buf.content;
-	line_len = 0;
-	for (i = 0; i < file_buf.len; i++) {
-		if (file_buf.content[i] == '\n') {
-			if (match_filter_query(line_start, line_len))
-				/* yay! here we have found a matching line!*/
-				for (j = 0; j <= line_len && filtered_buf.len < FILE_BUF_MAX-1; j++)
-					filtered_buf.content[filtered_buf.len++] = *line_start++;
-			line_start = &file_buf.content[i+1];
-			line_len = 0;
-		} else {
-			line_len++;
-		}
+	while (i < file_buf.len) {
+		line_start = &file_buf.content[i];
+		line_len = 0;
+		for (; i < file_buf.len && file_buf.content[i] != '\n'; i++, line_len++);
+		if (match_filter_query(line_start, line_len))
+			/* yay! here we have found a matching line!
+			 * lets save it on the program's memory, the 
+			 * __memory_for_matching_lines__ (filtered_buf.content) */
+			for (j = 0; j <= line_len && filtered_buf.len < FILE_BUF_MAX-1; j++)
+				filtered_buf.content[filtered_buf.len++] = *line_start++;
+		i++;
 	}
 }
 
@@ -90,29 +92,18 @@ void append_buf_in_to_file_buf(char *buf_in, int len)
 	int i = 0, j = 0, line_len = 0;
 	char *line_start = NULL;
 
-	line_start = buf_in;
-	line_len = 0;
-	/* this code is getting ugly, the possibilites for dealing with this in the future are:
-	 * 1. try to fix its ugliness
-	 * 2. get used with it 
-	 * 3. writing such comments 
-	 * well; the following loop walks through the input from file and save 
-	 * it on memory, the __memory_for_all_file_lines__ (file_buf.content)
-	 * */
-	for (i = 0; i < len && file_buf.len < FILE_BUF_MAX-1; i++) {
-		file_buf.content[file_buf.len++] = buf_in[i];
-		if (buf_in[i] == '\n') {
-			if (match_filter_query(line_start, line_len))
-				/* yay! here we have found a matching line!
-				 * lets save it on the program's memory, the 
-				 * __memory_for_matching_lines__ (filtered_buf.content) */
-				for (j = 0; j <= line_len && filtered_buf.len < FILE_BUF_MAX-1; j++)
-					filtered_buf.content[filtered_buf.len++] = *line_start++;
-			line_start = &buf_in[i+1];
-			line_len = 0;
-		} else {
-			line_len++;
-		}
+	while (i < len && file_buf.len < FILE_BUF_MAX-1) {
+		line_start = &buf_in[i];
+		line_len = 0;
+		for (; i < len && file_buf.len < FILE_BUF_MAX-1 && buf_in[i] != '\n'; i++, line_len++)
+			file_buf.content[file_buf.len++] = buf_in[i];
+		file_buf.content[file_buf.len++] = buf_in[i++];
+		if (match_filter_query(line_start, line_len))
+			/* yay! here we have found a matching line!
+			 * lets save it on the program's memory, the 
+			 * __memory_for_matching_lines__ (filtered_buf.content) */
+			for (j = 0; j <= line_len && filtered_buf.len < FILE_BUF_MAX-1; j++)
+				filtered_buf.content[filtered_buf.len++] = *line_start++;
 	}
 	must_update_buffer = 1;
 }

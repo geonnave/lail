@@ -43,7 +43,13 @@ int cmdl_process_char(char ch)
 		/* here we fetch the cmdl input */
 		fb = field_buffer(cmdl_field[0], 0);
 		memcpy(&cmdl_query.cmd, fb , 1);
+		if (!cmdl_query.cmd || cmdl_query.cmd == ' ')
+			return -1;
+
 		memcpy(cmdl_query.content, ++fb, CMDL_MAX);
+
+		cmdl_query.len = cmdl_currx-1;
+		cmdl_query.content[cmdl_query.len] = '\0';
 
 		cmdl_currx = 0;
 		set_field_buffer(cmdl_field[0], 0, "");

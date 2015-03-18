@@ -55,8 +55,6 @@ void apply_cmdl()
 	must_apply_cmdl = 0;
 	must_update_buffer = 1;
 
-	clear();
-
 	filtered_buf.len = 0;
 	while (i < file_buf.len) {
 		line_start = &file_buf.content[i];
@@ -76,6 +74,8 @@ void update_buffer()
 {
 	int i = 0;
 	char *line_start = NULL;
+
+	buffer_clear();
 
 	buf_curr.x = buf_curr.y = 0;
 	line_start = filtered_buf.content;

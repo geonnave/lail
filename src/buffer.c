@@ -11,6 +11,19 @@
  * and/or data flow should appear to the user
  */
 
+void buffer_clear()
+{
+	struct cursor_pos len;
+	int i = 0;
+
+	getmaxyx(stdscr, len.y, len.x);
+
+	for (i = 0; i < len.y-1; i++) {
+		move(i, 0);
+		clrtoeol();
+	}
+}
+
 int buffer_put_line(char* line_start, char* line_end)
 {
 	struct cursor_pos len;

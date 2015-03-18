@@ -7,6 +7,7 @@ struct cursor_pos buf_curr;
 
 void buffer_init();
 void buffer_terminate();
+void buffer_clear();
 int buffer_put_line(char* line_start, char* line_end);
 int buffer_put_char(char ch);
 
